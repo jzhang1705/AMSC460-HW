@@ -1,0 +1,26 @@
+import math
+import numpy as np
+from sympy import *
+def NewtonsIteration(x0, Tol, N0): #Tol = tolerence, N0 = iterations
+    r = 0 #root
+    e = x0 - r #error
+    x = symbols('x') # x
+    f = x + x**4 #function
+    df = f.diff(x) #f'(x)
+    p0 = x0
+    i = 1
+    prev_e = e; #previous error
+    while i <= N0:
+        p = p0 - f.evalf(subs = {x:p0})/df.evalf(subs = {x:p0})
+        if np.abs(p - p0) <= Tol:
+            print("p = " +str(p) + " after " + str(i) + " iterations.")
+            break
+        prev_e = e
+        p0 = p
+        e = p0 - r
+        print("error " + str(i)+ ": " + str(e))
+        i += 1
+        if(i >= 2):
+            print("order of convergence 2 for n = " + str(i-1)+ " " + str(e/(prev_e**2)))
+    if i > N0:
+        print("Method failed after " + str(N0) + " iterations")

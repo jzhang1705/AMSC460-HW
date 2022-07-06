@@ -1,0 +1,51 @@
+import math
+import numpy as np
+from sympy import *
+from scipy.integrate import quad
+import scipy.special as special
+from sympy.plotting import plot
+
+def g_5a(x1,x2):
+    
+    return math.cos(x1 + x2) + math.sin(x1) + math.cos(x2)
+
+def grad_g_5a(x1,x2):
+    return [-math.sin(x1 + x2) + math.cos(x1), -math.sin(x1 + x2) - math.sin(x2)]
+
+def Steepest_Descent(x1,x2,TOL,N,g, grad_g):
+    k = 1
+    while(k <= N):
+        g1 = g(x1,x2)
+        z = grad_g(x1,x2)
+        z0 = (z[0]**2 + z[1]**2)**(1/2)
+        if z0 == 0:
+            print("Zero gradient")
+            return (x1,x2,g1)
+        z[0] /= z0
+        z[1] /= z0
+        a1 = 0
+        a3 = 1
+        g3 = g(x1 - a3*z[0], x2 - a3*z[1])
+        while(g3 >= g1):
+            a3 = a3/2
+            g3 = g(x1 - a3*z[0], x2 - a3*z[1])
+            if a3 < TOL/2:
+                print("No likely improvement")
+                return (x1,x2,g1)
+        a2 = a3/2
+        g2 = g(x1 - a2*z[0], x2 - a2*z[1])
+        h1 = (g2 - g1)/a2
+        h2 = (g3 - g2)/(a3-a2)
+        h3 = (h2 - h1)/a3
+        a0 = 0.5*(a2 - h1/h3)
+        g0 = g(x1 - a0*z[0], x2 - a0*z[1])
+        a = a3 if g3 < g0 else a0
+        x1 -= a*z[0]
+        x2 -= a*z[1]
+        print(x1,x2,g(x1,x2))
+        if(abs(g(x1,x2) - g1) < TOL):
+            print("Here")
+            print(k)
+            return (x1,x2,g(x1,x2))
+        k += 1
+    return(x1,x2, g(x1,x2))

@@ -1,0 +1,66 @@
+import math
+import numpy as np
+from sympy import *
+from scipy.integrate import quad
+import scipy.special as special
+from sympy.plotting import plot
+
+def f(t,y):
+    return 0.0439*math.log(12000/y)*y
+
+def Adam_Fourth_Order_Predictor_Corrector(h, a, alpha, target):
+    t = [a]
+    w = [alpha]
+    K = [0,0,0,0]
+    for i in range(1,4):
+        K[0] = h*f(t[i - 1], w[i - 1])
+        K[1] = h*f(t[i - 1] +h/2, w[i - 1] + K[0]/2)
+        K[2] = h*f(t[i - 1] +h/2, w[i - 1] + K[1]/2)
+        K[3] = h*f(t[i - 1] +h, w[i - 1] + K[2])
+        w.append(w[i-1] + (K[0] + 2*K[1] + 2*K[2] + K[3])/6) 
+        t.append(a + i*h)
+        print(K)
+    
+    print(w)
+    i = 4
+    while (w[3] < target):
+        time = a + i*h
+        t3w3 = f(t[3],w[3])
+        t2w2 = f(t[2],w[2])
+        t1w1 = f(t[1],w[1])
+        temp = w[3] + (h/24)*(55*t3w3 - 59*t2w2 + 37*t1w1 - 9*f(t[0],w[0]))
+        temp = w[3] + (h/24)*(9*f(time,temp) + 19*t3w3 - 5*t2w2 + t1w1)
+        for j in range(3):
+            t[j] = t[j + 1]
+            w[j] = w[j + 1]
+        t[3] = time
+        w[3] = temp
+        i += 1
+    return t[3]
+    
+def f(t,y):
+    return 2*t*y**2
+
+def y(t):
+    return 1/(1 - t**2)
+    
+def Euler_Method(a,k):
+    n = 10**k
+    h = a/n
+    t = 0
+    w = 1
+    for i in range(1, n + 1):
+        w = w + h*f(t,w)
+        t = i*h
+    return w
+    
+def Modified_Euler_Method(a,k):
+    n = 10**k
+    h = a/n
+    t = 0
+    w = 1
+    for i in range(n):
+        temp = f(t,w)
+        w = w + (h/2)*(temp + f(t+h, w + h*temp))
+        t = i*h
+    return w
